@@ -1,0 +1,473 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+
+    <title>Gestión | Celis&Ud</title>
+
+    <link href="/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+
+    <link rel="stylesheet" href="/assets/css/fontawesome.css" />
+    <link rel="stylesheet" href="/assets/css/templatemo-woox-travel.css" />
+    <link rel="stylesheet" href="/assets/css/owl.css" />
+    <link rel="stylesheet" href="/assets/css/animate.css" />
+    <link rel="stylesheet" href="/assets/css/admin-style.css" />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/swiper@7/swiper-bundle.min.css"
+    />
+  </head>
+  <body>
+    <header class="admin-header header-sticky">
+      <div class="container d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center gap-3">
+          <i class="fa fa-utensils fs-3"></i>
+          <a href="/admin">
+            <h1 class="m-0 fs-4 fw-bold text-white">
+              Celis&Ud <span class="fw-light">| Admin</span>
+            </h1>
+          </a>
+        </div>
+        <div class="d-flex align-items-center gap-3">
+          <span class="d-none d-md-inline"
+            >Hola, <strong>{{adminName}}</strong></span
+          >
+          <a href="/profileadmin" class="avatar-link">
+            {{#hasAdminAvatar}}
+            <img
+              src="/user/{{adminId}}/avatar"
+              alt="Admin"
+              class="user-profile"
+              style="width: 45px; height: 45px; border-radius: 50%"
+            />
+            {{/hasAdminAvatar}} {{^hasAdminAvatar}}
+            <img
+              src="/templatemo_580_woox_travel/assets/images/perfil-user.jpg"
+              alt="Admin"
+              class="user-profile"
+              style="width: 45px; height: 45px; border-radius: 50%"
+            />
+            {{/hasAdminAvatar}}
+          </a>
+          <!-- CORRECTO -->
+          <form action="/logout" method="post" style="display: inline">
+            <input type="hidden" name="_csrf" value="{{csrfToken}}" />
+            <button class="btn btn-outline-light btn-sm" title="Cerrar sesión">
+              <i class="fa fa-sign-out-alt"></i>
+            </button>
+          </form>
+        </div>
+      </div>
+    </header>
+
+    <section class="admin-container">
+      {{#error}}
+      <div class="alert alert-danger text-center" style="margin: 10px 20px">
+        {{error}}
+      </div>
+      {{/error}}
+      <div>
+        <div class="col-lg-12">
+          <div class="section-heading text-center">
+            <h2 class="header-text">Listado de restaurantes</h2>
+            <p class="header-text">
+              Añadir, editar o eliminar locales registrados.
+            </p>
+          </div>
+          <div class="col-lg-12">
+            <div
+              class="d-flex align-items-center justify-content-end gap-2 my-margin"
+            >
+              <button
+                class="boton boton-graphics"
+                data-bs-toggle="modal"
+                data-bs-target="#modalEstadisticas"
+              >
+                Estadisticas
+              </button>
+
+              <button
+                class="boton boton-add"
+                data-bs-toggle="modal"
+                data-bs-target="#modalRestaurante"
+              >
+                + Añadir Restaurante
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="format-table">
+        <table class="table align-middle">
+          <thead>
+            <tr class="text-center">
+              <th>Portada</th>
+              <th>Nombre</th>
+              <th>Municipio</th>
+              <th>Especialidad</th>
+              <th>Precio Medio</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#restaurants}}
+            <tr class="text-center">
+              <td>
+                <img
+                  src="/restaurant/{{id}}/image"
+                  alt="{{name}}"
+                  class="image-table"
+                  onerror="this.style.display = 'none'"
+                />
+              </td>
+              <td>{{name}}</td>
+              <td>{{municipality}}</td>
+              <td>{{specialty}}</td>
+              <td>{{averagePrice}}€</td>
+              <td class="acciones">
+                <button
+                  class="boton boton-edit"
+                  data-id="{{id}}"
+                  data-name="{{name}}"
+                  data-municipality="{{municipality}}"
+                  data-specialty="{{specialty}}"
+                  data-price="{{averagePrice}}"
+                  data-address="{{address}}"
+                  data-phone="{{phone}}"
+                  data-description="{{description}}"
+                  data-hasimage="{{hasImage}}"
+                  onclick="abrirEditar(this)"
+                >
+                  Editar
+                </button>
+
+                <form
+                  action="/admin/restaurants/{{id}}/delete"
+                  method="post"
+                  style="display: inline"
+                  onsubmit="
+                    return confirm(
+                      '¿Seguro que quieres eliminar este restaurante?',
+                    );
+                  "
+                >
+                  <input type="hidden" name="_csrf" value="{{csrfToken}}" />
+                  <button type="submit" class="boton boton-eliminar">
+                    Eliminar
+                  </button>
+                </form>
+              </td>
+            </tr>
+            {{/restaurants}}
+          </tbody>
+        </table>
+        <div class="col-lg-12 visit-country">
+          <ul class="page-numbers">
+            <li>
+              <a href="#"><i class="fa fa-arrow-left"></i></a>
+            </li>
+            <li class="active">
+              <a href="#">1</a>
+            </li>
+            <li>
+              <a href="#">2</a>
+            </li>
+            <li>
+              <a href="#">3</a>
+            </li>
+            <li>
+              <a href="#"><i class="fa fa-arrow-right"></i></a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <div
+      class="modal fade"
+      id="modalRestaurante"
+      tabindex="-1"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content custom-modal">
+          <div class="modal-header">
+            <h5 class="modal-title">Gestión del restaurante</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form
+              class="admin-form"
+              id="formRestaurante"
+              action="/admin/restaurants/new"
+              method="post"
+              enctype="multipart/form-data"
+            >
+              <input type="hidden" name="_csrf" value="{{csrfToken}}" />
+              <div class="form-group">
+                <label for="nombre">Nombre del restaurante</label>
+                <input type="text" id="nombre" name="name" required />
+              </div>
+
+              <div class="form-columns">
+                <div class="form-group">
+                  <label for="municipio">Municipio</label>
+                  <select id="municipio" name="municipality" required>
+                    <option value="">Seleccionar</option>
+                    <option value="Madrid">Madrid</option>
+                    <option value="Móstoles">Móstoles</option>
+                    <option value="Alcorcón">Alcorcón</option>
+                    <option value="Leganés">Leganés</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label for="especialidad">Especialidad</label>
+                  <select id="especialidad" name="specialty" required>
+                    <option value="">Seleccionar</option>
+                    <option value="Italiano">Italiano</option>
+                    <option value="Japonés">Japonés</option>
+                    <option value="Mexicano">Mexicano</option>
+                    <option value="Mediterraneo">Mediterráneo</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label for="direccion">Dirección</label>
+                  <input type="text" id="direccion" name="address" required />
+                </div>
+
+                <div class="form-group">
+                  <label for="precio">Precio Medio (€)</label>
+                  <input
+                    type="number"
+                    id="precio"
+                    name="averagePrice"
+                    min="1"
+                    required
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label for="telefono">Teléfono</label>
+                  <input type="tel" id="telefono" name="phone" />
+                </div>
+
+                <div class="form-group">
+                  <label for="descripcion">Descripción</label>
+                  <textarea
+                    id="descripcion"
+                    name="description"
+                    required
+                  ></textarea>
+                </div>
+                <div class="form-group">
+                  <label for="imagen">Imagen de la portada</label>
+                  <input
+                    type="file"
+                    id="imagen"
+                    name="imageFile"
+                    accept="image/*"
+                  />
+                  <div
+                    id="deleteImageBtn"
+                    style="display: none; margin-top: 8px"
+                  >
+                    <button
+                      type="button"
+                      class="boton boton-eliminar"
+                      id="btnEliminarFoto"
+                    >
+                      Eliminar foto actual
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-actions">
+                <button
+                  type="button"
+                  class="boton boton-cancel"
+                  data-bs-dismiss="modal"
+                >
+                  Cancelar
+                </button>
+                <button type="submit" class="boton boton-guardar">
+                  Guardar datos
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="modal fade"
+      id="modalEstadisticas"
+      tabindex="-1"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content custom-modal">
+          <div class="modal-header">
+            <h5 class="modal-title">Top 5 Restaurantes (Valoración Media)</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Cerrar"
+            ></button>
+          </div>
+          <div class="modal-body d-flex flex-column align-items-center">
+            <canvas id="miGraficoTop5" width="400" height="200"></canvas>
+          </div>
+          <div class="modal-footer" style="border-top: none">
+            <button
+              type="button"
+              class="boton boton-cancel"
+              data-bs-dismiss="modal"
+            >
+              Cerrar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <div
+      id="datos-grafico"
+      style="display: none"
+      data-nombres="{{#topRestaurants}}{{name}}|{{/topRestaurants}}"
+      data-notas="{{#topRestaurants}}{{averageRating}}|{{/topRestaurants}}"
+    ></div>
+
+    <script>
+      const modalEstadisticas = document.getElementById("modalEstadisticas");
+      let chartInstancia = null;
+
+      modalEstadisticas.addEventListener("shown.bs.modal", function () {
+        if (chartInstancia != null) {
+          chartInstancia.destroy();
+        }
+
+        const datos = document.getElementById("datos-grafico");
+        const nombresRaw = datos.getAttribute("data-nombres");
+        const notasRaw = datos.getAttribute("data-notas");
+
+        const nombres = nombresRaw
+          ? nombresRaw.split("|").filter((n) => n.trim() !== "")
+          : [];
+        const notas = notasRaw
+          ? notasRaw
+              .split("|")
+              .filter((n) => n.trim() !== "")
+              .map(Number)
+          : [];
+
+        const ctx = document.getElementById("miGraficoTop5").getContext("2d");
+        chartInstancia = new Chart(ctx, {
+          type: "bar",
+          data: {
+            labels: nombres,
+            datasets: [
+              {
+                label: "Nota Media (Estrellas)",
+                data: notas,
+                backgroundColor: "rgba(255, 165, 0, 0.5)",
+                borderColor: "rgba(255, 165, 0, 1)",
+                borderWidth: 1,
+              },
+            ],
+          },
+          options: {
+            scales: { y: { beginAtZero: true, max: 5 } },
+          },
+        });
+      });
+      function abrirEditar(btn) {
+        const id = btn.getAttribute("data-id");
+        const name = btn.getAttribute("data-name");
+        const municipality = btn.getAttribute("data-municipality");
+        const specialty = btn.getAttribute("data-specialty");
+        const price = btn.getAttribute("data-price");
+        const address = btn.getAttribute("data-address");
+        const phone = btn.getAttribute("data-phone");
+        const description = btn.getAttribute("data-description");
+
+        const form = document.getElementById("formRestaurante");
+        form.action = "/admin/restaurants/" + id + "/edit";
+
+        document.getElementById("nombre").value = name;
+        document.getElementById("municipio").value = municipality;
+        document.getElementById("especialidad").value = specialty;
+        document.getElementById("precio").value = price;
+        document.getElementById("direccion").value = address;
+        document.getElementById("telefono").value = phone;
+        document.getElementById("descripcion").value = description;
+
+        const modal = new bootstrap.Modal(
+          document.getElementById("modalRestaurante"),
+        );
+        const hasImage = btn.getAttribute("data-hasimage") === "true";
+        const deleteBtn = document.getElementById("deleteImageBtn");
+        deleteBtn.style.display = hasImage ? "block" : "none";
+
+        // Configurar el botón para que envíe al endpoint de borrar imagen
+        document.getElementById("btnEliminarFoto").onclick = function () {
+          if (confirm("¿Eliminar la foto de este restaurante?")) {
+            const form = document.createElement("form");
+            form.method = "post";
+            form.action = "/admin/restaurants/" + id + "/deleteImage";
+            const csrfInput = document.createElement("input");
+            csrfInput.type = "hidden";
+            csrfInput.name = "_csrf";
+            csrfInput.value = "{{csrfToken}}";
+            form.appendChild(csrfInput);
+            document.body.appendChild(form);
+            form.submit();
+          }
+        };
+        modal.show();
+      }
+
+      /* ── Resetear formulario al añadir ── */
+      document
+        .querySelector(".boton-add")
+        .addEventListener("click", function () {
+          const form = document.getElementById("formRestaurante");
+          form.action = "/admin/restaurants/new";
+          form.reset();
+        });
+    </script>
+  </body>
+  <footer>
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-12">
+          <div class="copyright-text">
+            <p>Copyright © 2026 Celis&Ud. Todos los derechos reservados.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+</html>

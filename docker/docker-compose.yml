@@ -1,0 +1,61 @@
+# =========================================================
+# RODRI
+# =========================================================
+# Orquesta los 3 contenedores de la aplicación:
+#   - mysql       → base de datos
+#   - app-service → web + API REST (puerto 8443)
+#   - utility-service → envío de emails (puerto 8080)
+#
+# Para ejecutarlo:
+#   docker compose up
+#
+# Para ejecutarlo descargando desde DockerHub directamente
+# (sin necesitar el código fuente):
+#   docker compose -f docker-compose.yml up
+# =========================================================
+
+version: '3.8'
+
+services:
+  # ==========================================
+  # BASE DE DATOS (MySQL)
+  # ==========================================
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: practica2
+    # Healthcheck para saber cuándo MySQL está listo:
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ==========================================
+  # APP SERVICE (Principal)
+  # ==========================================
+  app-service:
+    image: rodrigodefrutos/app-service:latest
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/practica2
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root # Misma que MYSQL_ROOT_PASSWORD
+      UTILITY_SERVICE_URL: http://utility-service:8080
+    ports:
+      - "8443:8443"
+    depends_on:
+      mysql:
+        # Espera a que MySQL esté completamente listo gracias al healthcheck (rúbrica #29)
+        condition: service_healthy
+
+  # ==========================================
+  # UTILITY SERVICE (Emails)
+  # ==========================================
+  utility-service:
+    image: rodrigodefrutos/utility-service:latest
+    environment:
+      MAIL_USERNAME: rdefrutossuarez@gmail.com
+      MAIL_PASSWORD: ${GMAIL_PASSWORD} # Cambiar por la app password de Gmail
+    ports:
+      - "8080:8080"
